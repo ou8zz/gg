@@ -13,8 +13,8 @@ func GetUser(u *model.User) ([]model.User, error) {
 
 // insert数据
 func SaveUser(u *model.User) (int64, error) {
-	defer utils.RecoverException()
-	
+	utils.RecoverException()
+
 	// 事物控制
 	lid, err := model.SaveUser(u)
 	panic(-3)
