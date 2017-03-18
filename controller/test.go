@@ -1,4 +1,4 @@
-package main
+package controller
 
 import (
 	"net/http"
@@ -15,8 +15,7 @@ func main() {
 	e.POST("/getUser", getUser)
 	e.POST("/save", save)
 
-	e.Logger.Fatal(e.Start(":85"))
-
+	e.Logger.Fatal(e.Start(":8080"))
 }
 
 /**
@@ -107,6 +106,15 @@ func save(c echo.Context) error {
 	return c.JSON(http.StatusCreated, rd)
 }
 
+// 实体Model
+type User struct {
+	Id int 		`json:"id"`
+	Name  string 	`json:"name"`
+	Email string 	`json:"email"`
+	Tdate string 	`json:"tdate"`
+
+}
+
 /**
  * response返回json对象
  */
@@ -138,9 +146,7 @@ func recoverException() {
 
 // defer关闭数据库连接
 func deff(conn sql.DB) {
-	if conn != nil {
-		conn.Close()
-	}
+	conn.Close()
 	log.Print("close conn")
 }
 

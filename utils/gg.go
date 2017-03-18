@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"fmt"
@@ -42,9 +42,9 @@ func cc(n1, n2 *int) (*int, string) {
 		fmt.Println(i)
 	}
 	*n1 = *n2
-	return n1, "str";
+	return n1, "str"
 }
-func main() {
+func main2() {
 	var n1, n2 = 100, 200
 	var c, d = cc(&n1, &n2)
 	fmt.Println(c, d, n1, n2)
