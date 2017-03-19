@@ -32,7 +32,7 @@ func GetUser(u *User) ([]User, error) {
 
 	// SQL查询
 	conn := config.Conn()
-	defer config.DeferCloseDb(*conn)
+	defer config.CloseDb(*conn)
 	query, err := conn.Query(sql, datas...)
 	log.Println(err)
 
@@ -48,25 +48,26 @@ func GetUser(u *User) ([]User, error) {
 }
 
 // insert数据
-func SaveUser(u *User) (int64, error) {
+func SaveUser(u *User) (lid int64, err error) {
 	// 事物控制
 	conn := config.Conn()
-	defer config.DeferCloseDb(*conn)
+	defer config.CloseDb(*conn)
 	tx, err := conn.Begin()
 	res, err := tx.Exec("insert into user (name, email, tdate) values (?, ?, ?)", "ole", u.Email, u.Tdate)
 	res, err = tx.Exec("insert into user (name, email, tdate) values (?, ?, ?)", u.Name, u.Email, u.Tdate)
 	defer Transtion(tx)
+	if err != nil {
+		panic(-1)
+	}
 
 	// 无事物
 	sql := "insert into user (name, email, tdate) values (?, ?, ?)"
 	log.Print(sql)
 	res, err = conn.Exec(sql, "sherry", u.Email, "2017-03-18")
 
-	panic(-1)
-
 	// 获取最后一个insert的ID
 	log.Print(res.LastInsertId())
-	lid, _ := res.LastInsertId()
+	lid, _ = res.LastInsertId()
 	return lid, err
 }
 
@@ -75,7 +76,6 @@ func Transtion(tx *sql.Tx) {
 	if err != nil {
 		tx.Rollback()
 		log.Println("Exception model panic:", err)
-		//panic(-2)
 	} else {
 		tx.Commit()
 	}

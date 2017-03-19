@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"gg/service"
 	"gg/model"
-	"errors"
 )
 
 // 全局返回对象
@@ -34,6 +33,7 @@ func GetUser(c echo.Context) error {
 		fmt.Print(err)
 	}
 
+	// 查询数据库
 	rd.Data, rd.ErrorInfo = service.GetUser(u)
 	return c.JSON(http.StatusCreated, rd)
 }
@@ -43,24 +43,7 @@ func GetUser(c echo.Context) error {
  */
 func SaveUser(c echo.Context) error {
 	// 在后面程序出现异常的时候就会捕获
-	//defer utils.RecoverException()
-	defer func() (err error) {
-		if r := recover(); r != nil {
-			// 这里可以对异常进行一些处理和捕获
-			fmt.Println("Exception:", r)
-
-			//check exactly what the panic was and create error.
-			switch x := r.(type) {
-			case string:
-				err = errors.New(x)
-			case error:
-				err = x
-			default:
-				err = errors.New("Unknow panic")
-			}
-		}
-		return err
-	}()
+	defer utils.RecoverException()
 
 	// 绑定User表单对象
 	u := &model.User{}
@@ -71,7 +54,34 @@ func SaveUser(c echo.Context) error {
 		return c.JSON(http.StatusOK, rd)
 	}
 
+	// 数据保存
 	rd.Data, rd.ErrorInfo = service.SaveUser(u)
 	rd.Data = "新增成功"
+	return c.JSON(http.StatusCreated, rd)
+}
+
+/**
+ * 上传文件数据
+ */
+func UploadFile(c echo.Context) error {
+	// 在后面程序出现异常的时候就会捕获
+	defer utils.RecoverException()
+
+	// 获取表单参数
+	name := c.FormValue("name")
+	avatar, err := c.FormFile("avatar")
+	if err != nil {
+		return err
+	}
+
+	// 文件保存
+	name, err = service.UploadFile(name, *avatar)
+	if err != nil {
+		rd.ErrorInfo = err
+		return c.JSON(http.StatusCreated, rd)
+	}
+
+	rd.ErrorInfo = name
+	rd.Data = "上传成功"
 	return c.JSON(http.StatusCreated, rd)
 }

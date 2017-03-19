@@ -1,10 +1,12 @@
-package utils
+package main
 
 import (
 	"fmt"
 	_ "net/http"
 	_ "github.com/labstack/echo"
 	_ "github.com/labstack/echo/middleware"
+	"io/ioutil"
+	"encoding/json"
 )
 
 var f bool = false
@@ -48,4 +50,31 @@ func main2() {
 	var n1, n2 = 100, 200
 	var c, d = cc(&n1, &n2)
 	fmt.Println(c, d, n1, n2)
+}
+
+var xxx = map[string]string{}
+
+func readFile(filename string) (map[string]string, error) {
+	bytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		fmt.Println("ReadFile: ", err.Error())
+		return nil, err
+	}
+
+	if err := json.Unmarshal(bytes, &xxx); err != nil {
+		fmt.Println("Unmarshal: ", err.Error())
+		return nil, err
+	}
+
+	return xxx, nil
+}
+
+func main1() {
+	xxxMap, err := readFile("/Users/ole/dev/gopath/src/gg/config/db.json")
+	if err != nil {
+		fmt.Println("readFile: ", err.Error())
+		//return err
+	}
+
+	fmt.Println(xxxMap)
 }
